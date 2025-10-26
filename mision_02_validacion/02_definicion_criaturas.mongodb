@@ -1,0 +1,61 @@
+use('bestiario');
+
+db.criaturas.drop();
+
+db.createCollection("criaturas", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["nombre", "habitat", "nivel_peligro", "es_legendaria", "habilidades", "ficha_veterinaria", "id_guardian"],
+      properties: {
+        nombre: {
+          bsonType: "string",
+          description: "El nombre de la criatura debe ser un string"
+        },
+        habitat: {
+          bsonType: "string",
+          description: "El hábitat debe ser un string"
+        },
+        nivel_peligro: {
+          bsonType: "number",
+          minimum: 1,
+          maximum: 10,
+          description: "El nivel de peligro debe ser un número entre 1 y 10"
+        },
+        es_legendaria: {
+          bsonType: "bool",
+          description: "Es legendaria debe ser un valor booleano"
+        },
+        habilidades: {
+          bsonType: "array",
+          minItems: 1,
+          uniqueItems: true,
+          items: {
+            bsonType: "string"
+          },
+          description: "Las habilidades deben ser un array con al menos 1 elemento string único"
+        },
+        ficha_veterinaria: {
+          bsonType: "object",
+          required: ["salud", "ultima_revision"],
+          properties: {
+            salud: {
+              bsonType: "string",
+              enum: ["Óptima", "Regular", "Crítica"],
+              description: "La salud debe ser: Óptima, Regular o Crítica"
+            },
+            ultima_revision: {
+              bsonType: "date",
+              description: "La última revisión debe ser una fecha"
+            }
+          },
+          description: "La ficha veterinaria debe ser un objeto con salud y ultima_revision"
+        },
+        id_guardian: {
+          bsonType: "objectId",
+          description: "El id_guardian debe ser un ObjectId válido que referencia a un guardián"
+        }
+      }
+    }
+  }
+});
