@@ -1,0 +1,361 @@
+use('bestiario');
+
+// PRUEBA 1: Guardián insetción VÁLIDA
+db.guardianes.insertOne({
+  nombre: "Aria Luminis",
+  rango: "Gran Maestro",
+  password_acceso: "Segura123",
+  nivel: 45,
+  inventario: [
+    { nombre_item: "Poción de Vida", cantidad: 5 },
+    { nombre_item: "Cristal de Mana", cantidad: 3 },
+    { nombre_item: "Pergamino Antiguo", cantidad: 1 }
+  ]
+});
+
+print("Guardián válido insertado correctamente");
+
+// Guardar el _id del guardián válido
+const guardianValido = db.guardianes.findOne({ nombre: "Aria Luminis" });
+print("ID del guardián válido:", guardianValido._id);
+
+
+// PRUEBA 2: Guardián INVÁLIDO (captura del error)
+try {
+  db.guardianes.insertOne({
+    nombre: "Guardián Fallido",
+    rango: "Novato", //  No está en el enum
+    password_acceso: "corta1", //  Menos de 8 caracteres y sin mayúscula
+    inventario: [
+      { nombre_item: "Espada", cantidad: 1 }
+    ]
+  });
+} catch (error) {
+  print("\n ERROR AL INSERTAR GUARDIÁN INVÁLIDO:");
+  print(JSON.stringify(error, null, 2));
+  printjson(error);
+}
+
+/*
+ERROR CAPTURADO:
+{
+  "errorLabelSet": {},
+  "errorResponse": {
+    "index": 0,
+    "code": 121,
+    "errmsg": "Document failed validation",
+    "errInfo": {
+      "failingDocumentId": "68fe2ee25e7648198ca654f4",
+      "details": {
+        "operatorName": "$jsonSchema",
+        "schemaRulesNotSatisfied": [
+          {
+            "operatorName": "properties",
+            "propertiesNotSatisfied": [
+              {
+                "propertyName": "rango",
+                "description": "El rango debe ser uno de: Aprendiz, Maestro o Gran Maestro",
+                "details": [
+                  {
+                    "operatorName": "enum",
+                    "specifiedAs": {
+                      "enum": [
+                        "Aprendiz",
+                        "Maestro",
+                        "Gran Maestro"
+                      ]
+                    },
+                    "reason": "value was not found in enum",
+                    "consideredValue": "Novato"
+                  }
+                ]
+              },
+              {
+                "propertyName": "password_acceso",
+                "description": "La contraseña debe tener mínimo 8 caracteres, al menos una mayúscula y un número",
+                "details": [
+                  {
+                    "operatorName": "pattern",
+                    "specifiedAs": {
+                      "pattern": "^(?=.*[A-Z])(?=.*\\d).{8,}$"
+                    },
+                    "reason": "regular expression did not match",
+                    "consideredValue": "corta1"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "index": 0,
+  "code": 121,
+  "errInfo": {
+    "failingDocumentId": "68fe2ee25e7648198ca654f4",
+    "details": {
+      "operatorName": "$jsonSchema",
+      "schemaRulesNotSatisfied": [
+        {
+          "operatorName": "properties",
+          "propertiesNotSatisfied": [
+            {
+              "propertyName": "rango",
+              "description": "El rango debe ser uno de: Aprendiz, Maestro o Gran Maestro",
+              "details": [
+                {
+                  "operatorName": "enum",
+                  "specifiedAs": {
+                    "enum": [
+                      "Aprendiz",
+                      "Maestro",
+                      "Gran Maestro"
+                    ]
+                  },
+                  "reason": "value was not found in enum",
+                  "consideredValue": "Novato"
+                }
+              ]
+            },
+            {
+              "propertyName": "password_acceso",
+              "description": "La contraseña debe tener mínimo 8 caracteres, al menos una mayúscula y un número",
+              "details": [
+                {
+                  "operatorName": "pattern",
+                  "specifiedAs": {
+                    "pattern": "^(?=.*[A-Z])(?=.*\\d).{8,}$"
+                  },
+                  "reason": "regular expression did not match",
+                  "consideredValue": "corta1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+MongoServerError: Document failed validation
+    at InsertOneOperation.handleOk (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:2758675)
+    at topology (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:2746220)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async t.executeOperation (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:2744619)
+    at async Collection.insertOne (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:2583329)
+    at async Proxy.insertOne (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:654073)
+    at async Proxy.insertOne (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:743754)
+    at async Proxy.<anonymous> (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:745698)
+    at async Proxy.<anonymous> (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:746133)
+    at async evalmachine.<anonymous>:104:27
+    at async ShellEvaluator.innerEval (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:913861)
+    at async ShellEvaluator.customEval (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:914129)
+    at async OpenContextRuntime.evaluate (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:71621)
+    at async ElectronRuntime.evaluate (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:73033)
+    at async t.execute (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:3478957)
+    at async c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:3479588 {
+  errorLabelSet: Set(0) {},
+  errorResponse: {
+    index: 0,
+    code: 121,
+    errmsg: 'Document failed validation',
+    errInfo: {
+      failingDocumentId: ObjectId('68fe2ee25e7648198ca654f4'),
+      details: [Object]
+    }
+  },
+  index: 0,
+  code: 121,
+  errInfo: {
+    failingDocumentId: ObjectId('68fe2ee25e7648198ca654f4'),
+    details: { operatorName: '$jsonSchema', schemaRulesNotSatisfied: [Array] }
+  }
+}
+
+*/
+
+
+// PRUEBA 3: Criatura VÁLIDA
+db.criaturas.insertOne({
+  nombre: "Fénix Dorado",
+  habitat: "Montañas Volcánicas",
+  nivel_peligro: 9,
+  es_legendaria: true,
+  habilidades: ["Resurrección", "Vuelo", "Control de Fuego", "Curación"],
+  ficha_veterinaria: {
+    salud: "Óptima",
+    ultima_revision: new Date("2025-10-15")
+  },
+  id_guardian: guardianValido._id
+});
+
+// PRUEBA 4: Criatura INVÁLIDA (captura del error)
+try {
+  db.criaturas.insertOne({
+    nombre: "Criatura Fallida",
+    habitat: "Bosque Oscuro",
+    nivel_peligro: 5,
+    es_legendaria: false,
+    habilidades: [], // Array vacío
+    ficha_veterinaria: {
+      // Falta el campo 'salud'
+      ultima_revision: new Date("2025-10-20")
+    },
+    id_guardian: guardianValido._id
+  });
+} catch (error) {
+  print("\n ERROR AL INSERTAR CRIATURA INVÁLIDA:");
+  print(JSON.stringify(error, null, 2));
+  printjson(error);
+}
+
+/*
+ERROR CAPTURADO:
+
+  "errorLabelSet": {},
+  "errorResponse": {
+    "index": 0,
+    "code": 121,
+    "errmsg": "Document failed validation",
+    "errInfo": {
+      "failingDocumentId": "68fe30ce2f007aae6a224a40",
+      "details": {
+        "operatorName": "$jsonSchema",
+        "schemaRulesNotSatisfied": [
+          {
+            "operatorName": "properties",
+            "propertiesNotSatisfied": [
+              {
+                "propertyName": "habilidades",
+                "description": "Las habilidades deben ser un array con al menos 1 elemento string único",
+                "details": [
+                  {
+                    "operatorName": "minItems",
+                    "specifiedAs": {
+                      "minItems": 1
+                    },
+                    "reason": "array did not match specified length",
+                    "consideredValue": [],
+                    "numberOfItems": 0
+                  }
+                ]
+              },
+              {
+                "propertyName": "ficha_veterinaria",
+                "description": "La ficha veterinaria debe ser un objeto con salud y ultima_revision",
+                "details": [
+                  {
+                    "operatorName": "required",
+                    "specifiedAs": {
+                      "required": [
+                        "salud",
+                        "ultima_revision"
+                      ]
+                    },
+                    "missingProperties": [
+                      "salud"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "index": 0,
+  "code": 121,
+  "errInfo": {
+    "failingDocumentId": "68fe30ce2f007aae6a224a40",
+    "details": {
+      "operatorName": "$jsonSchema",
+      "schemaRulesNotSatisfied": [
+        {
+          "operatorName": "properties",
+          "propertiesNotSatisfied": [
+            {
+              "propertyName": "habilidades",
+              "description": "Las habilidades deben ser un array con al menos 1 elemento string único",
+              "details": [
+                {
+                  "operatorName": "minItems",
+                  "specifiedAs": {
+                    "minItems": 1
+                  },
+                  "reason": "array did not match specified length",
+                  "consideredValue": [],
+                  "numberOfItems": 0
+                }
+              ]
+            },
+            {
+              "propertyName": "ficha_veterinaria",
+              "description": "La ficha veterinaria debe ser un objeto con salud y ultima_revision",
+              "details": [
+                {
+                  "operatorName": "required",
+                  "specifiedAs": {
+                    "required": [
+                      "salud",
+                      "ultima_revision"
+                    ]
+                  },
+                  "missingProperties": [
+                    "salud"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+MongoServerError: Document failed validation
+    at InsertOneOperation.handleOk (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:2758675)
+    at topology (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:2746220)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async t.executeOperation (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:2744619)
+    at async Collection.insertOne (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:2583329)
+    at async Proxy.insertOne (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:654073)
+    at async Proxy.insertOne (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:743754)
+    at async Proxy.<anonymous> (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:745698)
+    at async Proxy.<anonymous> (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:746133)
+    at async evalmachine.<anonymous>:276:27
+    at async ShellEvaluator.innerEval (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:913861)
+    at async ShellEvaluator.customEval (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:914129)
+    at async OpenContextRuntime.evaluate (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:71621)
+    at async ElectronRuntime.evaluate (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:73033)
+    at async t.execute (c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:3478957)
+    at async c:\Users\JENN\.vscode\extensions\mongodb.mongodb-vscode-1.14.2\dist\languageServerWorker.js:134:3479588 {
+  errorLabelSet: Set(0) {},
+  errorResponse: {
+    index: 0,
+    code: 121,
+    errmsg: 'Document failed validation',
+    errInfo: {
+      failingDocumentId: ObjectId('68fe30ce2f007aae6a224a40'),
+      details: [Object]
+    }
+  },
+  index: 0,
+  code: 121,
+  errInfo: {
+    failingDocumentId: ObjectId('68fe30ce2f007aae6a224a40'),
+    details: { operatorName: '$jsonSchema', schemaRulesNotSatisfied: [Array] }
+  }
+}
+*/
+
+print("\n========================================");
+print("VERIFICACIÓN FINAL");
+print("========================================\n");
+
+print("Total de guardianes:", db.guardianes.countDocuments());
+db.guardianes.find().forEach(printjson);
+
+print("\nTotal de criaturas:", db.criaturas.countDocuments());
+db.criaturas.find().forEach(printjson);
